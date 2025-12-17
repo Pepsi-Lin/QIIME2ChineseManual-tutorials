@@ -52,9 +52,44 @@ qiime metadata tabulate \
 mv rep-seqs-dada2.qza rep-seqs.qza
 mv table-dada2.qza table.qza
 
+# 特征表和特征序列汇总
+qiime feature-table summarize \
+  --i-table table.qza \
+  --o-visualization table.qzv \
+  --m-sample-metadata-file sample_metadata.tsv
 
+qiime feature-table tabulate-seqs \
+  --i-data rep-seqs.qza \
+  --o-visualization rep-seqs.qzv
 
+# 构建进化树用于多样性分析
+time qiime phylogeny align-to-tree-mafft-fasttree \
+  --i-sequences rep-seqs.qza \
+  --o-alignment aligned-rep-seqs.qza \
+  --o-masked-alignment masked-aligned-rep-seqs.qza \
+  --o-tree unrooted-tree.qza \
+  --o-rooted-tree rooted-tree.qza
 
+# 多样性计算
+time qiime diversity core-metrics-phylogenetic \
+  --i-phylogeny rooted-tree.qza \
+  --i-table table.qza \
+  --p-sampling-depth 1103 \
+  --m-metadata-file sample_metadata.tsv \
+  --output-dir core-metrics-results
+
+# Alpha多样性组间显著性分析和可视化
+qiime diversity alpha-group-significance \
+  --i-alpha-diversity core-metrics-results/faith_pd_vector.qza \
+  --m-metadata-file sample_metadata.tsv \
+  --o-visualization core-metrics-results/faith-pd-group-significance.qzv
+
+qiime diversity alpha-group-significance \
+  --i-alpha-diversity core-metrics-results/evenness_vector.qza \
+  --m-metadata-file sample_metadata.tsv \
+  --o-visualization core-metrics-results/evenness-group-significance.qzv
+
+上面的就做完了
 
 # 查看版本（确认是2024.2.0）
 qiime --version
