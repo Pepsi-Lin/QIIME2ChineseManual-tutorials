@@ -24,8 +24,37 @@ time qiime tools import \
   --input-path emp-single-end-sequences \
   --output-path emp-single-end-sequences.qza
 
-接下来是样本拆分，没看了
-  
+# 样本拆分（实际上可能不需要该步骤，因为公司返样都是拆分好的）
+time qiime demux emp-single \
+  --i-seqs emp-single-end-sequences.qza \
+  --m-barcodes-file sample_metadata.tsv \
+  --m-barcodes-column barcode-sequence \
+  --o-per-sample-sequences demux.qza \
+  --o-error-correction-details demux-details.qza
+  # 结果统计（将上述结果可视化，这一步必须要可视化并自己查看数据）
+  time qiime demux summarize \
+  --i-data demux.qza \
+  --o-visualization demux.qzv
+
+# 序列质控和生成特征表
+time qiime dada2 denoise-single \
+  --i-demultiplexed-seqs demux.qza \
+  --p-trim-left 0 \
+  --p-trunc-len 120 \
+  --o-representative-sequences rep-seqs-dada2.qza \
+  --o-table table-dada2.qza \
+  --o-denoising-stats stats-dada2.qza
+此步骤是上述命令结果的可视化
+qiime metadata tabulate \
+  --m-input-file stats-dada2.qza \
+  --o-visualization stats-dada2.qzv
+我们的下游分析，将继续使用dada2的结果，需要将它们改名方便继续分析：
+mv rep-seqs-dada2.qza rep-seqs.qza
+mv table-dada2.qza table.qza
+
+
+
+
 
 # 查看版本（确认是2024.2.0）
 qiime --version
