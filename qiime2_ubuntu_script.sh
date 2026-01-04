@@ -89,7 +89,55 @@ qiime diversity alpha-group-significance \
   --m-metadata-file sample_metadata.tsv \
   --o-visualization core-metrics-results/evenness-group-significance.qzv
 
-上面的就做完了
+# 以faith-pd为例将互探索不同元数据条件下组间差异
+# 7s，多组或多样本时计算量指数增长（beta多样性）
+time qiime diversity beta-group-significance \
+  --i-distance-matrix core-metrics-results/unweighted_unifrac_distance_matrix.qza \
+  --m-metadata-file sample_metadata.tsv \
+  --m-metadata-column body-site \
+  --o-visualization core-metrics-results/unweighted-unifrac-body-site-significance.qzv \
+  --p-pairwise
+
+# 6s，多组或多样本时计算量指数增长（beta多样性）
+time qiime diversity beta-group-significance \
+  --i-distance-matrix core-metrics-results/unweighted_unifrac_distance_matrix.qza \
+  --m-metadata-file sample_metadata.tsv \
+  --m-metadata-column subject \
+  --o-visualization core-metrics-results/unweighted-unifrac-subject-group-significance.qzv \
+  --p-pairwise
+
+# 不同部分组内和组间差异显著性分析，采用箱线图+统计表呈现
+# UniFrac距离的Emperor图
+qiime emperor plot \
+  --i-pcoa core-metrics-results/unweighted_unifrac_pcoa_results.qza \
+  --m-metadata-file sample_metadata.tsv \
+  --p-custom-axes days-since-experiment-start \
+  --o-visualization core-metrics-results/unweighted-unifrac-emperor-days-since-experiment-start.qzv
+  
+# Bray-Curtis距离的Emperor图
+qiime emperor plot \
+  --i-pcoa core-metrics-results/bray_curtis_pcoa_results.qza \
+  --m-metadata-file sample_metadata.tsv \
+  --p-custom-axes days-since-experiment-start \
+  --o-visualization core-metrics-results/bray-curtis-emperor-days-since-experiment-start.qzv
+
+# Alpha稀疏曲线
+time qiime diversity alpha-rarefaction \
+  --i-table table.qza \
+  --i-phylogeny rooted-tree.qza \
+  --p-max-depth 4000 \
+  --m-metadata-file sample_metadata.tsv \
+  --o-visualization alpha-rarefaction.qzv
+
+# 物种组成分析
+# 下载物种注释数据库
+wget \
+  -O "gg-13-8-99-515-806-nb-classifier.qza" \
+  "https://data.qiime2.org/2021.2/common/gg-13-8-99-515-806-nb-classifier.qza"
+
+
+
+
 
 # 查看版本（确认是2024.2.0）
 qiime --version
