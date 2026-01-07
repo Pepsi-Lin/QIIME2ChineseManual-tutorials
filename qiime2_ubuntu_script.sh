@@ -130,11 +130,25 @@ time qiime diversity alpha-rarefaction \
   --o-visualization alpha-rarefaction.qzv
 
 # 物种组成分析
-# 下载物种注释数据库
-wget \
-  -O "gg-13-8-99-515-806-nb-classifier.qza" \
-  "https://data.qiime2.org/2021.2/common/gg-13-8-99-515-806-nb-classifier.qza"
-这一步做完了
+
+# 下载物种注释数据库（Greengenes分类器）
+  注意这个物种注释数据库是实时更新的，有时间再去了解下这个库是啥玩意，现在根据AI修改命令如下
+echo "=== 下载Greengenes分类器 ==="
+wget -O "gg-13-8-99-nb-classifier.qza" \
+  "https://data.qiime2.org/2024.2/common/gg-13-8-99-nb-classifier.qza"
+#运行物种注释
+echo "=== 开始物种注释 ==="
+time qiime feature-classifier classify-sklearn \
+  --i-classifier gg-13-8-99-nb-classifier.qza \
+  --i-reads rep-seqs.qza \
+  --o-classification taxonomy.qza \
+  --p-n-jobs 1
+
+# 生成可视化
+qiime metadata tabulate \
+  --m-input-file taxonomy.qza \
+  --o-visualization taxonomy.qzv
+
 
 
 
