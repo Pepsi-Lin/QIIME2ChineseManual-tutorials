@@ -148,7 +148,13 @@ time qiime feature-classifier classify-sklearn \
 qiime metadata tabulate \
   --m-input-file taxonomy.qza \
   --o-visualization taxonomy.qzv
-
+# 上述结果的堆叠柱状图绘制
+qiime taxa barplot \
+  --i-table table.qza \
+  --i-taxonomy taxonomy.qza \
+  --m-metadata-file sample_metadata.tsv \
+  --o-visualization taxa-bar-plots.qzv
+  
 
 
 
